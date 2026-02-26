@@ -269,7 +269,6 @@ header::after{
 }
 .expand-btn:hover{color:var(--matrix);}
 
-/* ── CHECKLIST ── */
 .check-item{
   display:flex;align-items:flex-start;gap:14px;
   background:var(--card);border:1px solid var(--border2);border-radius:2px;
@@ -605,7 +604,7 @@ header::after{
   <div class="tab active" onclick="showTab('history')" id="tab-history">// Trade History</div>
   <div class="tab" onclick="showTab('log')" id="tab-log">// Log Trade</div>
   <div class="tab" onclick="showTab('calc')" id="tab-calc">// Calculator</div>
-  <div class="tab" onclick="showTab('checklist')" id="tab-checklist">// Pre-Trade Checklist</div>
+  
 </div>
 
 <!-- HISTORY -->
@@ -642,6 +641,10 @@ header::after{
         </select>
       </div>
       <div class="form-group">
+        <label class="form-label">// Instrument</label>
+        <input type="text" class="form-input" id="fil-instrument" placeholder="e.g. NQ, ES..." oninput="applyFilters()">
+      </div>
+      <div class="form-group">
         <label class="form-label">// Daily Bias</label>
         <select class="form-select" id="fil-bias" onchange="applyFilters()">
           <option value="">All</option>
@@ -655,26 +658,8 @@ header::after{
           <option>Tight</option><option>Average</option><option>Wide</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">// OB Rating</label>
-        <select class="form-select" id="fil-ob" onchange="applyFilters()">
-          <option value="">All</option>
-          <option value="1">★ 1 Star</option>
-          <option value="2">★★ 2 Stars</option>
-          <option value="3">★★★ 3 Stars</option>
-          <option value="4">★★★★ 4 Stars</option>
-          <option value="5">★★★★★ 5 Stars</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">// OB Timeframe</label>
-        <select class="form-select" id="fil-ob-tf" onchange="applyFilters()">
-          <option value="">All</option>
-          <optgroup label="Minutes"><option>1M</option><option>3M</option><option>5M</option><option>15M</option><option>30M</option></optgroup>
-          <optgroup label="Hours"><option>1H</option><option>4H</option><option>12H</option><option>24H</option></optgroup>
-          <optgroup label="Higher"><option>1D</option><option>1W</option></optgroup>
-        </select>
-      </div>
+      
+      
       <div class="form-group">
         <label class="form-label">// FVG</label>
         <select class="form-select" id="fil-fvg" onchange="applyFilters()">
@@ -687,22 +672,12 @@ header::after{
         <label class="form-label">// Liquidity Swept</label>
         <select class="form-select" id="fil-liquidity" onchange="applyFilters()">
           <option value="">All</option>
-          <option>PDH</option><option>PDL</option><option>Asia High</option><option>Asia Low</option>
-          <option>PDH + Asia High</option><option>PDL + Asia Low</option><option>Both Sides</option>
+          <option>PMH</option><option>PMM</option><option>PML</option>
+          <option>PWH</option><option>PWM</option><option>PWL</option>
+          <option>24hr</option><option>12hr</option><option>4hr</option><option>1hr</option>
         </select>
       </div>
-      <div class="form-group">
-        <label class="form-label">// StDev Reaction</label>
-        <select class="form-select" id="fil-stdev" onchange="applyFilters()">
-          <option value="">All</option>
-          <option>N/A</option>
-          <option>-2.0 StDev</option><option>-1.5 StDev</option><option>-1.0 StDev</option>
-          <option>-0.75 StDev</option><option>-0.5 StDev</option><option>-0.25 StDev</option>
-          <option>0 (Equilibrium)</option>
-          <option>+0.25 StDev</option><option>+0.5 StDev</option><option>+0.75 StDev</option>
-          <option>+1.0 StDev</option><option>+1.5 StDev</option><option>+2.0 StDev</option>
-        </select>
-      </div>
+      
       <div class="form-group" style="align-self:flex-end;">
         <button class="btn" onclick="clearFilters()" style="width:100%;">[ Clear Filters ]</button>
       </div>
@@ -729,6 +704,7 @@ header::after{
   <div class="form-card">
     <div class="form-grid">
       <div class="form-group"><label class="form-label">// Date</label><input type="date" class="form-input" id="f-date"></div>
+      <div class="form-group"><label class="form-label">// Instrument</label><input type="text" class="form-input" id="f-instrument" placeholder="e.g. NQ, ES, CL, GC..."></div>
       <div class="form-group"><label class="form-label">// Session</label><select class="form-select" id="f-session"><option>New York</option><option>Asia</option><option>London</option></select></div>
       <div class="form-group"><label class="form-label">// Direction</label><select class="form-select" id="f-direction"><option value="">-- Select --</option><option>Long</option><option>Short</option></select></div>
       <div class="form-group"><label class="form-label">// Daily Bias</label><select class="form-select" id="f-bias"><option>Bullish</option><option>Bearish</option><option>Uncertain</option><option>Neutral</option></select></div>
@@ -737,38 +713,14 @@ header::after{
       <div class="form-group"><label class="form-label">// Entry Price</label><input type="number" class="form-input" id="f-entry" placeholder="e.g. 24677"></div>
       <div class="form-group"><label class="form-label">// Stop Loss (pts)</label><input type="number" class="form-input" id="f-stop" placeholder="e.g. 25"></div>
       <div class="form-group"><label class="form-label">// Target (pts)</label><input type="number" class="form-input" id="f-target" placeholder="e.g. 100"></div>
-      <div class="form-group"><label class="form-label">// Liquidity Swept</label><select class="form-select" id="f-liquidity"><option value="">-- Select --</option><option>PDH</option><option>PDL</option><option>Asia High</option><option>Asia Low</option><option>PDH + Asia High</option><option>PDL + Asia Low</option><option>Both Sides</option><option>Other</option></select></div>
-      <div class="form-group"><label class="form-label">// StDev Reaction Level</label><select class="form-select" id="f-stdev"><option value="N/A">N/A</option><option>-2.0 StDev</option><option>-1.5 StDev</option><option>-1.0 StDev</option><option>-0.75 StDev</option><option>-0.5 StDev</option><option>-0.25 StDev</option><option>0 (Equilibrium)</option><option>+0.25 StDev</option><option>+0.5 StDev</option><option>+0.75 StDev</option><option>+1.0 StDev</option><option>+1.5 StDev</option><option>+2.0 StDev</option></select></div>
+      <div class="form-group"><label class="form-label">// Liquidity Swept</label><select class="form-select" id="f-liquidity"><option value="">-- Select --</option><option>PMH</option><option>PMM</option><option>PML</option><option>PWH</option><option>PWM</option><option>PWL</option><option>24hr</option><option>12hr</option><option>4hr</option><option>1hr</option></select></div>
+      
     </div>
     <div class="form-grid">
-      <div class="form-group">
-        <label class="form-label">// OB Quality (1–5)</label>
-        <div class="ob-rating" id="obStars">
-          <div class="ob-star" data-v="1" onclick="setOBRating(1)">1</div>
-          <div class="ob-star" data-v="2" onclick="setOBRating(2)">2</div>
-          <div class="ob-star" data-v="3" onclick="setOBRating(3)">3</div>
-          <div class="ob-star" data-v="4" onclick="setOBRating(4)">4</div>
-          <div class="ob-star" data-v="5" onclick="setOBRating(5)">5</div>
-        </div>
+      
         <div style="font-size:10px;color:var(--text3);margin-top:5px;">1=Weak · 3=Solid · 5=A+ Setup</div>
       </div>
-      <div class="form-group">
-        <label class="form-label">// OB Timeframe</label>
-        <select class="form-select" id="f-ob-tf">
-          <option value="">-- Select --</option>
-          <optgroup label="Minutes">
-            <option>1M</option><option>3M</option>
-            <option>5M</option><option>15M</option><option>30M</option>
-          </optgroup>
-          <optgroup label="Hours">
-            <option>1H</option><option>4H</option>
-            <option>12H</option><option>24H</option>
-          </optgroup>
-          <optgroup label="Higher">
-            <option>1D</option><option>1W</option>
-          </optgroup>
-        </select>
-      </div>
+      
       <div class="form-group">
         <label class="form-label">// FVG</label>
         <select class="form-select" id="f-fvg">
@@ -905,13 +857,6 @@ header::after{
 </div>
 
 
-<!-- CHECKLIST -->
-<div class="tab-content" id="content-checklist">
-  <div id="checklistProgress"></div>
-  <div id="checklist" style="display:flex;flex-direction:column;gap:8px;margin-top:8px;"></div>
-  <button class="btn check-reset" onclick="resetChecklist()" style="margin-top:12px;">[ Reset Checklist ]</button>
-</div>
-
 </div>
 
 <!-- PIN LOCK SCREEN -->
@@ -985,29 +930,12 @@ async function dbFetch(path, opts={}) {
 // ── STATE ────────────────────────────────────────────────────────────────────
 let trades = [];
 let obRating = 0, outcome = '', screenshotData = '';
-let checked = [];
 
-const CHECKLIST_ITEMS = [
-  {title:'Daily Bias Confirmed', desc:'Price in premium or at -1 StDev bounce. Reversal context valid.'},
-  {title:'Draw on Liquidity Identified', desc:'Clear target above or below. PDH, PDL, Asia High/Low.'},
-  {title:'Asian Range Marked', desc:'High and low plotted. Tight = preferred. Wide = caution.'},
-  {title:'Liquidity Swept', desc:'PDL, PDH, Asia High or Low taken out. Confirmed — not anticipated.'},
-  {title:'Sweep Was Clean', desc:'Sharp spike, fast rejection, minimal candles held past the level.'},
-  {title:'OB Identified & Confirmed', desc:'Fresh unmitigated two-candle OB. Candle 1 is entry zone.'},
-  {title:'OB is Unmitigated', desc:'Price has not returned to this zone since it formed.'},
-  {title:'CE Tapped', desc:'50% of Candle 1 body reached. Watching — not entering yet.'},
-  {title:'MSS Confirmed on 5M or 1M', desc:'Structure shift in direction of trade. Prior swing broken. NON-NEGOTIABLE.'},
-  {title:'FVG Formed After MSS', desc:'Fair Value Gap confirms aggressive institutional activity.'},
-  {title:'Path to Draw is Clean', desc:'No opposing OBs or FVGs between entry and target.'},
-  {title:'News Filter Passed', desc:'No major macro events within 30 minutes of entry.'},
-  {title:'OB Rated 3+ Stars', desc:'Only taking 3-star minimum setups.'},
-  {title:'Stop Loss Defined', desc:'Above/below OB high/low + 5-10pt NQ buffer placed.'},
-];
+
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 
 loadTrades();
-buildChecklist();
 
 async function loadTrades() {
   setStatus('Connecting to database...');
@@ -1058,7 +986,7 @@ function handleScreenshot(e) {
 }
 function clearForm() {
   obRating=0; outcome=''; screenshotData='';
-  ['f-notes','f-entry','f-stop','f-target','f-time','f-liquidity','f-stdev','f-ob-tf','f-direction'].forEach(id=>document.getElementById(id).value='');
+  ['f-notes','f-entry','f-stop','f-target','f-time','f-liquidity','f-direction','f-instrument'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-fvg').value='N/A';
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
 
@@ -1081,6 +1009,7 @@ async function logTrade() {
   const rr = (stop && target) ? '1:'+(target/stop).toFixed(1) : '—';
   const trade = {
     date,
+    instrument: document.getElementById('f-instrument').value||'—',
     session: document.getElementById('f-session').value,
     direction: document.getElementById('f-direction').value||'—',
     bias: document.getElementById('f-bias').value,
@@ -1088,13 +1017,10 @@ async function logTrade() {
     entry_time: document.getElementById('f-time').value||'—',
     entry_price: parseFloat(document.getElementById('f-entry').value)||null,
     stop, target, rr,
-    ob_rating: outcome==='No Trade'?0:obRating,
     outcome,
     pnl_pts: outcome==='Win'?target:outcome==='Loss'?-stop:0,
-    ob_timeframe: document.getElementById('f-ob-tf').value||'—',
     fvg: document.getElementById('f-fvg').value||'N/A',
     liquidity: document.getElementById('f-liquidity').value||'—',
-    stdev_target: document.getElementById('f-stdev').value||'—',
     notes: document.getElementById('f-notes').value.trim()||'—',
     screenshot: screenshotData||'',
   };
@@ -1186,15 +1112,13 @@ function getFilteredTrades() {
   const direction = document.getElementById('fil-direction').value;
   const outcome   = document.getElementById('fil-outcome').value;
   const session   = document.getElementById('fil-session').value;
+  const instrument = document.getElementById('fil-instrument').value.trim().toLowerCase();
   const bias      = document.getElementById('fil-bias').value;
   const asia      = document.getElementById('fil-asia').value;
-  const ob        = document.getElementById('fil-ob').value;
-  const obTf      = document.getElementById('fil-ob-tf').value;
   const fvg       = document.getElementById('fil-fvg').value;
   const liquidity = document.getElementById('fil-liquidity').value;
-  const stdev     = document.getElementById('fil-stdev').value;
 
-  activeFilters = {direction,outcome,session,bias,asia,ob,obTf,fvg,liquidity,stdev};
+  activeFilters = {direction,outcome,session,instrument,bias,asia,fvg,liquidity};
   const anyActive = Object.values(activeFilters).some(v=>v!=='');
   document.getElementById('filterBadge').style.display = anyActive ? 'inline-block' : 'none';
 
@@ -1202,14 +1126,12 @@ function getFilteredTrades() {
     if (direction && t.direction !== direction) return false;
     if (outcome   && t.outcome !== outcome) return false;
     if (session   && t.session !== session) return false;
+    if (instrument && !(t.instrument||'').toLowerCase().includes(instrument)) return false;
     if (bias      && t.bias !== bias) return false;
     if (asia      && t.asia !== asia) return false;
-    if (ob        && String(t.ob_rating) !== String(ob)) return false;
-    if (obTf      && t.ob_timeframe !== obTf) return false;
     if (fvg === 'has_fvg' && (!t.fvg || t.fvg === 'N/A')) return false;
     if (fvg === 'no_fvg'  && t.fvg && t.fvg !== 'N/A') return false;
     if (liquidity && !(t.liquidity||'').includes(liquidity)) return false;
-    if (stdev     && t.stdev_target !== stdev) return false;
     return true;
   });
 }
@@ -1222,8 +1144,9 @@ function applyFilters() {
 }
 
 function clearFilters() {
-  ['fil-direction','fil-outcome','fil-session','fil-bias','fil-asia','fil-ob','fil-ob-tf','fil-fvg','fil-liquidity','fil-stdev']
+  ['fil-direction','fil-outcome','fil-session','fil-bias','fil-asia','fil-fvg','fil-liquidity']
     .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fil-instrument').value = '';
   document.getElementById('filterBadge').style.display = 'none';
   document.getElementById('filterStats').classList.remove('show');
   renderTradesFiltered(trades);
@@ -1241,13 +1164,13 @@ function renderFilterStats(filtered, anyActive) {
   const total  = active.length;
   const wr     = total ? Math.round((wins/total)*100) : 0;
   const pts    = active.reduce((a,b)=>a+(b.pnl_pts||0),0);
-  const avgOB  = total ? (active.reduce((a,b)=>a+(b.ob_rating||0),0)/total).toFixed(1) : '—';
   const avgRR  = active.filter(t=>t.rr&&t.rr!=='—').length
     ? (active.filter(t=>t.rr&&t.rr!=='—').reduce((a,b)=>a+parseFloat((b.rr||'1:1').split(':')[1]||1),0) / active.filter(t=>t.rr&&t.rr!=='—').length).toFixed(1)
     : '—';
 
   // Build filter description
   const parts = [];
+  if (activeFilters.instrument) parts.push(activeFilters.instrument.toUpperCase());
   if (activeFilters.direction) parts.push(activeFilters.direction);
   if (activeFilters.outcome)   parts.push(activeFilters.outcome);
   if (activeFilters.session)   parts.push(activeFilters.session);
@@ -1267,8 +1190,7 @@ function renderFilterStats(filtered, anyActive) {
     <div class="filter-stat"><div class="filter-stat-label">Losses</div><div class="filter-stat-value loss-color">${losses}</div></div>
     <div class="filter-stat"><div class="filter-stat-label">BE</div><div class="filter-stat-value" style="color:var(--gold)">${be}</div></div>
     <div class="filter-stat"><div class="filter-stat-label">Total Pts</div><div class="filter-stat-value ${pts>=0?'win-color':'loss-color'}">${pts>0?'+':''}${pts}</div></div>
-    <div class="filter-stat"><div class="filter-stat-label">Avg R:R</div><div class="filter-stat-value" style="color:var(--blue)">1:${avgRR}</div></div>
-    <div class="filter-stat"><div class="filter-stat-label">Avg OB ★</div><div class="filter-stat-value gold-color">${avgOB}</div></div>
+    <div class="filter-stat"><div class="filter-stat-label">Avg R:R</div><div class="filter-stat-value" style="color:var(--blue)">1:${avgRR}</div></div><div class="filter-stat-value gold-color">${avgOB}</div></div>
     <div class="filter-stat"><div class="filter-stat-label">Sample</div><div class="filter-stat-value">${total}</div></div>
   `;
 }
@@ -1285,16 +1207,14 @@ function renderTradesFiltered(list) {
   tradeListEl.innerHTML = list.map(t => {
     const pillClass = {Win:'pill-win',Loss:'pill-loss',BE:'pill-be','No Trade':'pill-nt'}[t.outcome]||'pill-nt';
     const cardClass = {Win:'win-card',Loss:'loss-card',BE:'be-card'}[t.outcome]||'';
-    const stars = t.ob_rating?'★'.repeat(t.ob_rating)+'☆'.repeat(5-t.ob_rating):'—';
     const pnlColor = t.pnl_pts>0?'var(--win)':t.pnl_pts<0?'var(--loss)':'var(--text3)';
     const pnlStr = t.pnl_pts?(t.pnl_pts>0?'+':'')+t.pnl_pts+' pts':'—';
     return `
     <div class="trade-card ${cardClass} fade-in" id="card-${t.id}">
       <div class="trade-card-header" onclick="toggleCard('${t.id}')">
         <div class="trade-card-date">${t.date}</div>
-        <div class="trade-card-title">${t.session} · ${t.direction&&t.direction!=='—'?'<span style="color:'+(t.direction==='Long'?'var(--win)':'var(--loss)')+';font-weight:700;">'+t.direction+'</span> · ':''} ${t.bias} Bias · ${t.entry_time||'—'}</div>
+        <div class="trade-card-title">${t.instrument&&t.instrument!=='—'?'<span style="color:var(--matrix);font-weight:700;">'+t.instrument+'</span> · ':''} ${t.session} · ${t.direction&&t.direction!=='—'?'<span style="color:'+(t.direction==='Long'?'var(--win)':'var(--loss)')+';font-weight:700;">'+t.direction+'</span> · ':''} ${t.bias} Bias · ${t.entry_time||'—'}</div>
         <div class="trade-card-meta">
-          <span class="stars-display">${stars}</span>
           <span class="pill ${pillClass}">${t.outcome}</span>
           <span style="font-size:12px;color:${pnlColor};font-weight:600;">${pnlStr}</span>
           ${t.rr&&t.rr!=='—'?`<span class="rr-badge">${t.rr}</span>`:''}
@@ -1309,10 +1229,7 @@ function renderTradesFiltered(list) {
           <div class="trade-detail-item"><div class="td-label">Target</div><div class="td-value">${t.target?t.target+' pts ($'+(t.target*20)+')':'—'}</div></div>
           <div class="trade-detail-item"><div class="td-label">R:R Ratio</div><div class="td-value">${t.rr||'—'}</div></div>
           <div class="trade-detail-item"><div class="td-label">Asia Range</div><div class="td-value">${t.asia||'—'}</div></div>
-          <div class="trade-detail-item"><div class="td-label">OB Rating</div><div class="td-value" style="color:var(--gold)">${'★'.repeat(t.ob_rating||0)}</div></div>
-          ${t.ob_timeframe&&t.ob_timeframe!=='—'?`<div class="trade-detail-item"><div class="td-label">OB Timeframe</div><div class="td-value" style="color:var(--matrix)">${t.ob_timeframe}</div></div>`:''}
           ${t.fvg&&t.fvg!=='N/A'?`<div class="trade-detail-item"><div class="td-label">FVG</div><div class="td-value" style="color:var(--win)">${t.fvg}</div></div>`:''}
-          ${t.stdev_target&&t.stdev_target!=='—'?`<div class="trade-detail-item"><div class="td-label">StDev Reaction</div><div class="td-value" style="color:var(--gold)">${t.stdev_target}</div></div>`:''}
           ${t.liquidity&&t.liquidity!=='—'?`<div class="trade-detail-item" style="grid-column:1/-1"><div class="td-label">Liquidity Swept</div><div class="td-value">${t.liquidity}</div></div>`:''}
         </div>
         ${t.notes&&t.notes!=='—'?`<div class="trade-notes-full"><div class="td-label" style="margin-bottom:6px">// Notes & Observations</div>${t.notes}</div>`:''}
@@ -1323,7 +1240,7 @@ function renderTradesFiltered(list) {
   }).join('');
 }
 
-function renderAll() { renderStats(); applyFilters(); renderOBChart(); }
+function renderAll() { renderStats(); applyFilters(); }
 
 function renderStats() {
   const active = trades.filter(t=>t.outcome!=='No Trade');
@@ -1334,14 +1251,12 @@ function renderStats() {
   const total = active.length;
   const wr = total ? Math.round((wins/total)*100) : 0;
   const totalPts = active.reduce((a,b)=>a+(b.pnl_pts||0),0);
-  const avgOB = active.length ? (active.reduce((a,b)=>a+(b.ob_rating||0),0)/active.length).toFixed(1) : '—';
 
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card gold"><div class="stat-label">// Win Rate</div><div class="stat-value gold-color">${wr}%</div><div class="stat-sub">${total} traded sessions</div></div>
     <div class="stat-card green"><div class="stat-label">// Wins</div><div class="stat-value win-color">${wins}</div><div class="stat-sub">of ${total} trades</div></div>
     <div class="stat-card red"><div class="stat-label">// Losses</div><div class="stat-value loss-color">${losses}</div><div class="stat-sub">of ${total} trades</div></div>
-    <div class="stat-card"><div class="stat-label">// Total Points</div><div class="stat-value ${totalPts>=0?'win-color':'loss-color'}">${totalPts>0?'+':''}${totalPts}</div><div class="stat-sub">$${(totalPts*20).toLocaleString()} / contract</div></div>
-    <div class="stat-card gold"><div class="stat-label">// Avg OB Rating</div><div class="stat-value gold-color">${avgOB}</div><div class="stat-sub">out of 5 stars</div></div>
+    <div class="stat-card"><div class="stat-label">// Total Points</div><div class="stat-value ${totalPts>=0?'win-color':'loss-color'}">${totalPts>0?'+':''}${totalPts}</div><div class="stat-sub">$${(totalPts*20).toLocaleString()} / contract</div></div><div class="stat-value gold-color">${avgOB}</div><div class="stat-sub">out of 5 stars</div></div>
     <div class="stat-card blue"><div class="stat-label">// No Trades</div><div class="stat-value blue-color">${nt}</div><div class="stat-sub">discipline days</div></div>
   `;
 
@@ -1355,61 +1270,17 @@ function renderStats() {
   document.getElementById('lgNT').textContent=nt+' No Trade'+(nt!==1?'s':'');
 }
 
-function renderOBChart() {
-  let html='';
-  [1,2,3,4,5].forEach(r=>{
-    const rt=trades.filter(t=>t.ob_rating===r&&t.outcome!=='No Trade');
-    const rw=rt.filter(t=>t.outcome==='Win').length;
-    const wr=rt.length?Math.round(rw/rt.length*100):0;
-    const barH=rt.length?Math.max(4,(wr/100)*52):2;
-    const col=wr>=70?'var(--win)':wr>=40?'var(--gold)':wr>0?'var(--loss)':'var(--border2)';
-    html+=`<div class="ob-bar-col"><div class="ob-bar-val" style="color:${col}">${rt.length?wr+'%':'—'}</div><div class="ob-bar" style="height:${barH}px;background:${col};box-shadow:${rt.length?'0 0 6px '+col:'none'}"></div><div class="ob-bar-lbl">★${r}<br/>(${rt.length})</div></div>`;
-  });
-  document.getElementById('obBars').innerHTML=html;
-}
 
 
 
-// ── CHECKLIST ─────────────────────────────────────────────────────────────────
-function buildChecklist() {
-  const total=CHECKLIST_ITEMS.length, done=checked.length;
-  const pct=Math.round((done/total)*100);
-  const barCol=done===total?'var(--win)':done>=total-2?'var(--gold)':'var(--loss)';
-  const msg=done===total
-    ?'<span style="color:var(--win);font-weight:600;">✓ ALL CHECKS PASSED — SETUP IS VALID</span>'
-    :done>=total-2
-    ?`<span style="color:var(--gold);">${total-done} box${total-done>1?'es':''} unchecked — proceed with caution</span>`
-    :`<span style="color:var(--loss);">${total-done} boxes unchecked — DO NOT TRADE</span>`;
 
-  document.getElementById('checklistProgress').innerHTML=`
-    <div style="background:var(--card);border:1px solid var(--border2);border-radius:2px;padding:16px;margin-bottom:10px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);">// Checklist Progress</div>
-        <div style="font-size:12px;color:var(--text2);">${done} / ${total} — ${pct}%</div>
-      </div>
-      <div style="height:8px;background:var(--border);border-radius:1px;overflow:hidden;margin-bottom:10px;">
-        <div style="height:100%;width:${pct}%;background:${barCol};border-radius:1px;transition:width .3s ease;box-shadow:0 0 8px ${barCol};"></div>
-      </div>
-      <div style="font-size:12px;">${msg}</div>
-    </div>`;
 
-  document.getElementById('checklist').innerHTML=CHECKLIST_ITEMS.map((item,i)=>`
-    <div class="check-item ${checked.includes(i)?'checked':''}" onclick="toggleCheck(${i})">
-      <div class="check-box">${checked.includes(i)?'✓':''}</div>
-      <div><div class="check-title">${i+1}. ${item.title}</div><div class="check-desc">${item.desc}</div></div>
-    </div>`).join('');
-}
-function toggleCheck(i){
-  if(checked.includes(i))checked=checked.filter(x=>x!==i);else checked.push(i);
-  buildChecklist();
-}
-function resetChecklist(){checked=[];buildChecklist();}
 
 // ── EXPORT ────────────────────────────────────────────────────────────────────
 function exportCSV(){
   if(!trades.length){alert('No trades to export.');return;}
-  const h=['Date','Session','Direction','Bias','Asia','Entry Time','Entry Price','Stop (pts)','Target (pts)','R:R','OB Rating','OB Timeframe','FVG','Outcome','P&L (pts)','Liquidity Swept','StDev Target','Notes'];
-  const rows=trades.map(t=>[t.date,t.session,t.direction||'—',t.bias,t.asia,t.entry_time||'—',t.entry_price||'—',t.stop||'—',t.target||'—',t.rr||'—',t.ob_rating||'—',t.ob_timeframe||'—',t.fvg||'N/A',t.outcome,t.pnl_pts||0,t.liquidity||'—',t.stdev_target||'—','"'+(t.notes||'').replace(/"/g,'""')+'"']);
+  const h=['Date','Session','Direction','Bias','Asia','Entry Time','Entry Price','Stop (pts)','Target (pts)','R:R','FVG','Outcome','P&L (pts)','Liquidity Swept','Notes'];
+  const rows=trades.map(t=>[t.date,t.session,t.direction||'—',t.bias,t.asia,t.entry_time||'—',t.entry_price||'—',t.stop||'—',t.target||'—',t.rr||'—',t.fvg||'N/A',t.outcome,t.pnl_pts||0,t.liquidity||'—','"'+(t.notes||'').replace(/"/g,'""')+'"']);
   const csv=[h.join(','),...rows.map(r=>r.join(','))].join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
