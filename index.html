@@ -1190,7 +1190,7 @@ function renderFilterStats(filtered, anyActive) {
     <div class="filter-stat"><div class="filter-stat-label">Losses</div><div class="filter-stat-value loss-color">${losses}</div></div>
     <div class="filter-stat"><div class="filter-stat-label">BE</div><div class="filter-stat-value" style="color:var(--gold)">${be}</div></div>
     <div class="filter-stat"><div class="filter-stat-label">Total Pts</div><div class="filter-stat-value ${pts>=0?'win-color':'loss-color'}">${pts>0?'+':''}${pts}</div></div>
-    <div class="filter-stat"><div class="filter-stat-label">Avg R:R</div><div class="filter-stat-value" style="color:var(--blue)">1:${avgRR}</div></div><div class="filter-stat-value gold-color">${avgOB}</div></div>
+    <div class="filter-stat"><div class="filter-stat-label">Avg R:R</div><div class="filter-stat-value" style="color:var(--blue)">1:${avgRR}</div></div>
     <div class="filter-stat"><div class="filter-stat-label">Sample</div><div class="filter-stat-value">${total}</div></div>
   `;
 }
@@ -1256,7 +1256,7 @@ function renderStats() {
     <div class="stat-card gold"><div class="stat-label">// Win Rate</div><div class="stat-value gold-color">${wr}%</div><div class="stat-sub">${total} traded sessions</div></div>
     <div class="stat-card green"><div class="stat-label">// Wins</div><div class="stat-value win-color">${wins}</div><div class="stat-sub">of ${total} trades</div></div>
     <div class="stat-card red"><div class="stat-label">// Losses</div><div class="stat-value loss-color">${losses}</div><div class="stat-sub">of ${total} trades</div></div>
-    <div class="stat-card"><div class="stat-label">// Total Points</div><div class="stat-value ${totalPts>=0?'win-color':'loss-color'}">${totalPts>0?'+':''}${totalPts}</div><div class="stat-sub">$${(totalPts*20).toLocaleString()} / contract</div></div><div class="stat-value gold-color">${avgOB}</div><div class="stat-sub">out of 5 stars</div></div>
+    <div class="stat-card"><div class="stat-label">// Total Points</div><div class="stat-value ${totalPts>=0?'win-color':'loss-color'}">${totalPts>0?'+':''}${totalPts}</div><div class="stat-sub">$${(totalPts*20).toLocaleString()} / contract</div></div>
     <div class="stat-card blue"><div class="stat-label">// No Trades</div><div class="stat-value blue-color">${nt}</div><div class="stat-sub">discipline days</div></div>
   `;
 
