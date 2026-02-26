@@ -9,15 +9,15 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#000000;
-  --surface:#030a03;
-  --card:#050f05;
-  --card2:#071007;
-  --border:#0a2a0a;
-  --border2:#0f3d0f;
-  --matrix:#00ff41;
-  --matrix-dim:#00aa2a;
-  --matrix-dark:#003a0f;
-  --matrix-glow:rgba(0,255,65,0.15);
+  --surface:#0a0000;
+  --card:#0f0000;
+  --card2:#130000;
+  --border:#2a0000;
+  --border2:#3d0000;
+  --matrix:#ff2020;
+  --matrix-dim:#aa1010;
+  --matrix-dark:#3a0000;
+  --matrix-glow:rgba(255,32,32,0.15);
   --win:#1db863;
   --win-dim:#0d3a20;
   --loss:#d63031;
@@ -25,9 +25,9 @@
   --gold:#e8b84b;
   --gold-dim:#4a3a10;
   --blue:#2980d4;
-  --text:#00cc33;
-  --text2:#008f24;
-  --text3:#005510;
+  --text:#cc2020;
+  --text2:#8f1010;
+  --text3:#550808;
 }
 
 html{scroll-behavior:smooth}
@@ -48,8 +48,8 @@ body::before{
       0deg,
       transparent,
       transparent 2px,
-      rgba(0,255,65,0.015) 2px,
-      rgba(0,255,65,0.015) 4px
+      rgba(255,32,32,0.015) 2px,
+      rgba(255,32,32,0.015) 4px
     );
   pointer-events:none;z-index:0;
 }
@@ -74,7 +74,7 @@ header::after{
   font-size:31px;font-weight:800;
   color:var(--matrix);
   letter-spacing:2px;line-height:1;
-  text-shadow:0 0 20px rgba(0,255,65,0.5);
+  text-shadow:0 0 20px rgba(255,32,32,0.5);
 }
 .logo span{color:var(--matrix-dim);font-size:20px;font-weight:400;}
 .header-sub{font-size:13px;color:var(--text3);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase;}
@@ -95,7 +95,7 @@ header::after{
   box-shadow:0 0 10px var(--matrix-glow);
   font-weight:600;
 }
-.btn-primary:hover{background:var(--matrix-glow);box-shadow:0 0 20px rgba(0,255,65,0.3);}
+.btn-primary:hover{background:var(--matrix-glow);box-shadow:0 0 20px rgba(255,32,32,0.3);}
 
 /* ── STATS ── */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px;}
@@ -112,7 +112,7 @@ header::after{
 .stat-label{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:8px;}
 .stat-value{
   font-family:'Orbitron',monospace;font-size:37px;line-height:1;
-  color:var(--matrix);text-shadow:0 0 15px rgba(0,255,65,0.4);
+  color:var(--matrix);text-shadow:0 0 15px rgba(255,32,32,0.4);
 }
 .stat-value.win-color{color:var(--win);text-shadow:0 0 15px rgba(29,184,99,0.4);}
 .stat-value.loss-color{color:var(--loss);text-shadow:0 0 15px rgba(214,48,49,0.4);}
@@ -356,7 +356,7 @@ header::after{
 .empty-state .big{
   font-family:'Orbitron',monospace;font-size:70px;
   color:var(--border2);display:block;margin-bottom:10px;
-  text-shadow:0 0 20px rgba(0,255,65,0.1);
+  text-shadow:0 0 20px rgba(255,32,32,0.1);
 }
 
 /* ── STATUS BAR ── */
@@ -378,7 +378,7 @@ header::after{
 .pin-logo{
   font-family:'Orbitron',monospace;font-size:22px;font-weight:800;
   color:var(--matrix);letter-spacing:2px;
-  text-shadow:0 0 20px rgba(0,255,65,0.5);
+  text-shadow:0 0 20px rgba(255,32,32,0.5);
 }
 .pin-sub{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;}
 .pin-dots{display:flex;gap:14px;margin:8px 0;}
@@ -429,7 +429,7 @@ header::after{
 }
 .scanline-effect{
   position:fixed;inset:0;z-index:998;pointer-events:none;
-  background:linear-gradient(transparent 50%, rgba(0,255,65,0.015) 50%);
+  background:linear-gradient(transparent 50%, rgba(255,32,32,0.015) 50%);
   background-size:100% 4px;
   display:none;
 }
@@ -437,7 +437,7 @@ header::after{
 .scanline-effect::after{
   content:'';position:absolute;
   width:100%;height:3px;
-  background:linear-gradient(transparent,rgba(0,255,65,0.15),transparent);
+  background:linear-gradient(transparent,rgba(255,32,32,0.15),transparent);
   animation:scanline 0.6s linear forwards;
 }
 .news-panel{
@@ -466,7 +466,7 @@ header::after{
 }
 .news-event:last-child{border-bottom:none;}
 .news-event:hover{background:var(--card2);}
-.news-event.today{background:rgba(0,255,65,0.03);}
+.news-event.today{background:rgba(255,32,32,0.03);}
 .news-event.past{opacity:0.4;}
 .news-event.upcoming{border-left:2px solid var(--loss);}
 .news-event.next-up{
@@ -530,8 +530,8 @@ header::after{
 .filter-active-badge{
   display:inline-block;padding:2px 8px;border-radius:2px;
   font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
-  background:rgba(0,255,65,0.1);color:var(--matrix);
-  border:1px solid rgba(0,255,65,0.3);margin-left:8px;
+  background:rgba(255,32,32,0.1);color:var(--matrix);
+  border:1px solid rgba(255,32,32,0.3);margin-left:8px;
 }
 .status-bar{
   display:flex;align-items:center;gap:10px;
@@ -864,7 +864,7 @@ header::after{
         <div style="background:var(--bg);border:1px solid var(--matrix-dim);border-radius:2px;padding:18px;position:relative;">
           <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--matrix);opacity:0.6;"></div>
           <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:8px;" id="fullLabel">NQ — Full Size</div>
-          <div style="font-family:'Orbitron',monospace;font-size:32px;color:var(--matrix);text-shadow:0 0 15px rgba(0,255,65,0.3);line-height:1;" id="resultMain"></div>
+          <div style="font-family:'Orbitron',monospace;font-size:32px;color:var(--matrix);text-shadow:0 0 15px rgba(255,32,32,0.3);line-height:1;" id="resultMain"></div>
           <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="resultSub"></div>
         </div>
         <div style="background:var(--bg);border:1px solid var(--border2);border-radius:2px;padding:18px;position:relative;opacity:0.85;">
@@ -1739,7 +1739,7 @@ setInterval(loadNews, 60000); // refresh countdown every minute
     ctx.font = fontSize + 'px Share Tech Mono, monospace';
     drops.forEach((y, i) => {
       const bright = Math.random() > 0.95;
-      ctx.fillStyle = bright ? '#ffffff' : (Math.random() > 0.7 ? '#00ff41' : '#003a0f');
+      ctx.fillStyle = bright ? '#ffffff' : (Math.random() > 0.7 ? '#ff2020' : '#3a0000');
       const char = chars[Math.floor(Math.random() * chars.length)];
       ctx.fillText(char, i * fontSize, y * fontSize);
       if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
