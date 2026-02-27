@@ -184,6 +184,19 @@ header::after{
 .setup-btn{flex:1;min-width:70px;padding:9px 6px;border-radius:2px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);transition:all .15s;text-align:center;}
 .setup-btn:hover,.setup-btn.active{background:rgba(255,179,0,0.1);border-color:var(--matrix);color:var(--matrix);box-shadow:0 0 8px rgba(255,179,0,0.2);}
 
+/* ── VOICE ────────────────────────────────────────────────────────────────── */
+.voice-mic-btn{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:2px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.5px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);transition:all .15s;margin-left:8px;vertical-align:middle;}
+.voice-mic-btn:hover{border-color:var(--matrix);color:var(--matrix);box-shadow:0 0 8px rgba(255,179,0,0.2);}
+.voice-mic-btn.recording{border-color:var(--loss);color:var(--loss);animation:micPulse 1s ease-in-out infinite;}
+@keyframes micPulse{0%,100%{box-shadow:0 0 6px rgba(224,49,49,0.3);}50%{box-shadow:0 0 14px rgba(224,49,49,0.7);}}
+.voice-overlay{display:none;position:fixed;inset:0;background:rgba(10,8,0,0.94);z-index:2000;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
+.voice-overlay.active{display:flex;}
+.voice-label{font-family:'Orbitron',monospace;font-size:12px;letter-spacing:4px;color:var(--matrix);text-shadow:0 0 10px rgba(255,179,0,0.5);animation:blink 1.2s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.voice-interim{font-family:'Share Tech Mono',monospace;font-size:13px;color:var(--text2);max-width:380px;text-align:center;min-height:22px;padding:0 20px;font-style:italic;}
+.voice-stop-btn{font-family:'Share Tech Mono',monospace;font-size:11px;padding:7px 18px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;border-radius:2px;transition:all .15s;letter-spacing:.5px;}
+.voice-stop-btn:hover{border-color:var(--loss);color:var(--loss);}
+
 .screenshot-upload{
   border:1px dashed var(--border2);border-radius:2px;
   background:var(--bg);padding:18px;text-align:center;
@@ -745,7 +758,7 @@ header::after{
       </div>
     </div>
     <div class="form-group" style="margin-bottom:18px;">
-      <label class="form-label">// Session Notes & Observations</label>
+      <label class="form-label">// Session Notes & Observations <span class="voice-mic-btn" id="voiceMicBtn" onclick="startVoice()">[ ◉ MIC ]</span></label>
       <textarea class="form-textarea" id="f-notes" placeholder="What did you see? Liquidity swept? OB quality? MSS clean? Lessons learned..."></textarea>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
@@ -875,6 +888,14 @@ header::after{
 </div>
 
 <!-- DELETE CONFIRMATION MODAL -->
+<!-- Voice Overlay -->
+<div id="voiceOverlay" class="voice-overlay">
+  <canvas id="voiceCanvas" width="220" height="220"></canvas>
+  <div class="voice-label">// LISTENING</div>
+  <div class="voice-interim" id="voiceInterim"></div>
+  <button class="voice-stop-btn" onclick="stopVoice()">[ ✕ STOP ]</button>
+</div>
+
 <div class="modal-overlay" id="deleteModal">
   <div class="modal-box">
     <div class="modal-title">// Confirm Delete</div>
@@ -1763,6 +1784,103 @@ function unlockJournal() {
       }, 450);
     }, 350);
   }, 200);
+}
+
+// ── VOICE TO TEXT ─────────────────────────────────────────────────────────────
+let voiceRecognition = null;
+let voiceAudioCtx    = null;
+let voiceAnalyser    = null;
+let voiceStream      = null;
+let voiceAnimFrame   = null;
+
+function startVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Voice input requires Chrome or Safari.'); return; }
+  document.getElementById('voiceOverlay').classList.add('active');
+  document.getElementById('voiceMicBtn').classList.add('recording');
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    voiceStream   = stream;
+    voiceAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    voiceAnalyser = voiceAudioCtx.createAnalyser();
+    voiceAnalyser.fftSize = 256;
+    voiceAudioCtx.createMediaStreamSource(stream).connect(voiceAnalyser);
+    drawVoiceCanvas();
+  }).catch(() => {});
+  voiceRecognition = new SR();
+  voiceRecognition.continuous     = true;
+  voiceRecognition.interimResults = true;
+  voiceRecognition.lang           = 'en-US';
+  voiceRecognition.onresult = e => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      e.results[i].isFinal ? (final += t) : (interim += t);
+    }
+    document.getElementById('voiceInterim').textContent = interim;
+    if (final) {
+      const el = document.getElementById('f-notes');
+      el.value = (el.value ? el.value.trimEnd() + ' ' : '') + final.trim();
+    }
+  };
+  voiceRecognition.onerror = () => stopVoice();
+  voiceRecognition.start();
+}
+
+function stopVoice() {
+  if (voiceRecognition) { try { voiceRecognition.stop(); } catch(e){} voiceRecognition = null; }
+  if (voiceStream)      { voiceStream.getTracks().forEach(t => t.stop()); voiceStream = null; }
+  if (voiceAudioCtx)    { voiceAudioCtx.close(); voiceAudioCtx = null; }
+  if (voiceAnimFrame)   { cancelAnimationFrame(voiceAnimFrame); voiceAnimFrame = null; }
+  document.getElementById('voiceOverlay').classList.remove('active');
+  document.getElementById('voiceMicBtn').classList.remove('recording');
+  document.getElementById('voiceInterim').textContent = '';
+}
+
+function drawVoiceCanvas() {
+  const canvas = document.getElementById('voiceCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height, CX = W/2, CY = H/2;
+  const bufLen = voiceAnalyser.frequencyBinCount;
+  const data   = new Uint8Array(bufLen);
+  function draw() {
+    voiceAnimFrame = requestAnimationFrame(draw);
+    voiceAnalyser.getByteFrequencyData(data);
+    const avg  = data.reduce((a,b)=>a+b,0) / bufLen;
+    const norm = avg / 255;
+    ctx.clearRect(0, 0, W, H);
+    // Outer glow halo
+    const grd = ctx.createRadialGradient(CX,CY,70,CX,CY,108+norm*14);
+    grd.addColorStop(0, `rgba(255,179,0,${0.07+norm*0.22})`);
+    grd.addColorStop(1, 'rgba(255,179,0,0)');
+    ctx.beginPath(); ctx.arc(CX,CY,112+norm*14,0,Math.PI*2); ctx.fillStyle=grd; ctx.fill();
+    // Circle background
+    ctx.beginPath(); ctx.arc(CX,CY,88,0,Math.PI*2); ctx.fillStyle='#120d00'; ctx.fill();
+    // Circle border
+    ctx.beginPath(); ctx.arc(CX,CY,88,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,179,0,${0.25+norm*0.75})`; ctx.lineWidth=1.5; ctx.stroke();
+    // Echo ring
+    ctx.beginPath(); ctx.arc(CX,CY,44+norm*10,0,Math.PI*2);
+    ctx.strokeStyle=`rgba(255,179,0,${0.1+norm*0.2})`; ctx.lineWidth=1; ctx.stroke();
+    // Frequency bars radiating outward
+    const bars = 60;
+    for (let i=0; i<bars; i++) {
+      const angle   = (i/bars)*Math.PI*2 - Math.PI/2;
+      const dataIdx = Math.floor((i/bars)*bufLen*0.6);
+      const barH    = (data[dataIdx]/255)*40 + 4;
+      const alpha   = 0.35 + (data[dataIdx]/255)*0.65;
+      ctx.beginPath();
+      ctx.moveTo(CX+Math.cos(angle)*53, CY+Math.sin(angle)*53);
+      ctx.lineTo(CX+Math.cos(angle)*(53+barH), CY+Math.sin(angle)*(53+barH));
+      ctx.strokeStyle=`rgba(255,179,0,${alpha})`; ctx.lineWidth=2; ctx.lineCap='round'; ctx.stroke();
+    }
+    // Inner pulsing core
+    const coreR = 10 + norm*20;
+    const cGrd = ctx.createRadialGradient(CX,CY,0,CX,CY,coreR);
+    cGrd.addColorStop(0,`rgba(255,225,100,${0.9+norm*0.1})`);
+    cGrd.addColorStop(1,'rgba(255,179,0,0)');
+    ctx.beginPath(); ctx.arc(CX,CY,coreR,0,Math.PI*2); ctx.fillStyle=cGrd; ctx.fill();
+  }
+  draw();
 }
 
 // Keyboard support
