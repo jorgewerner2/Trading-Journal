@@ -1263,8 +1263,8 @@ function renderTradesFiltered(list) {
         <div class="trade-detail-grid">
           ${t.direction&&t.direction!=='—'?`<div class="trade-detail-item"><div class="td-label">Direction</div><div class="td-value" style="color:${t.direction==='Long'?'var(--win)':'var(--loss)'};font-weight:700;font-size:14px;">${t.direction}</div></div>`:''}
           <div class="trade-detail-item"><div class="td-label">Entry Price</div><div class="td-value">${t.entry_price||'—'}</div></div>
-          <div class="trade-detail-item"><div class="td-label">Stop Loss</div><div class="td-value">${t.stop?t.stop+' pts ($'+(t.stop*20)+')':'—'}</div></div>
-          <div class="trade-detail-item"><div class="td-label">Target</div><div class="td-value">${t.target?t.target+' pts ($'+(t.target*20)+')':'—'}</div></div>
+          <div class="trade-detail-item"><div class="td-label">Stop Loss</div><div class="td-value">${t.stop?t.stop+' pts ($'+(t.stop*getPtVal(t.instrument))+')':'—'}</div></div>
+          <div class="trade-detail-item"><div class="td-label">Target</div><div class="td-value">${t.target?t.target+' pts ($'+(t.target*getPtVal(t.instrument))+')':'—'}</div></div>
           <div class="trade-detail-item"><div class="td-label">R:R Ratio</div><div class="td-value">${t.rr||'—'}</div></div>
           <div class="trade-detail-item"><div class="td-label">Asia Range</div><div class="td-value">${t.asia||'—'}</div></div>
           ${t.fvg&&t.fvg!=='N/A'?`<div class="trade-detail-item"><div class="td-label">FVG</div><div class="td-value" style="color:var(--win)">${t.fvg}</div></div>`:''}
@@ -1292,12 +1292,14 @@ function renderStats() {
   const total = active.length;
   const wr = total ? Math.round((wins/total)*100) : 0;
   const totalPts = active.reduce((a,b)=>a+(b.pnl_pts||0),0);
+  const totalDollars = active.reduce((a,b)=>a+(b.pnl_dollars||0),0);
+  const dolSub = totalDollars!==0 ? (totalDollars>=0?'+$':'-$')+Math.abs(totalDollars).toLocaleString() : 'mixed instruments';
 
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card gold"><div class="stat-label">// Win Rate</div><div class="stat-value gold-color">${wr}%</div><div class="stat-sub">${total} traded sessions</div></div>
     <div class="stat-card green"><div class="stat-label">// Wins</div><div class="stat-value win-color">${wins}</div><div class="stat-sub">of ${total} trades</div></div>
     <div class="stat-card red"><div class="stat-label">// Losses</div><div class="stat-value loss-color">${losses}</div><div class="stat-sub">of ${total} trades</div></div>
-    <div class="stat-card"><div class="stat-label">// Total Points</div><div class="stat-value ${totalPts>=0?'win-color':'loss-color'}">${totalPts>0?'+':''}${totalPts}</div><div class="stat-sub">$${(totalPts*20).toLocaleString()} / contract</div></div>
+    <div class="stat-card"><div class="stat-label">// Total Points</div><div class="stat-value ${totalPts>=0?'win-color':'loss-color'}">${totalPts>0?'+':''}${totalPts}</div><div class="stat-sub">${dolSub}</div></div>
     <div class="stat-card blue"><div class="stat-label">// No Trades</div><div class="stat-value blue-color">${nt}</div><div class="stat-sub">discipline days</div></div>
   `;
 
