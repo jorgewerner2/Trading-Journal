@@ -8,26 +8,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;800&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#000000;
-  --surface:#05000a;
-  --card:#08000f;
-  --card2:#0a0012;
-  --border:#1a0030;
-  --border2:#4a0080;
-  --matrix:#bf00ff;
-  --matrix-dim:#8800cc;
-  --matrix-dark:#1a0033;
-  --matrix-glow:rgba(191,0,255,0.18);
-  --win:#1db863;
-  --win-dim:#0d3a20;
-  --loss:#d63031;
-  --loss-dim:#3a0a0a;
-  --gold:#e8b84b;
-  --gold-dim:#4a3a10;
-  --blue:#2980d4;
-  --text:#cc44ff;
-  --text2:#9922cc;
-  --text3:#661199;
+  --bg:#0a0800;
+  --surface:#0d0a00;
+  --card:#120d00;
+  --card2:#160f00;
+  --border:#2a1c00;
+  --border2:#5a3a00;
+  --matrix:#ffb300;
+  --matrix-dim:#cc8a00;
+  --matrix-dark:#2a1800;
+  --matrix-glow:rgba(255,179,0,0.15);
+  --win:#51cf66;
+  --win-dim:#0d3018;
+  --loss:#e03131;
+  --loss-dim:#3a0808;
+  --gold:#ffd43b;
+  --gold-dim:#3a2a00;
+  --blue:#4dabf7;
+  --text:#ffb300;
+  --text2:#cc8a00;
+  --text3:#7a5000;
 }
 
 html{scroll-behavior:smooth}
@@ -48,8 +48,8 @@ body::before{
       0deg,
       transparent,
       transparent 2px,
-      rgba(191,0,255,0.02) 2px,
-      rgba(191,0,255,0.02) 4px
+      rgba(255,179,0,0.02) 2px,
+      rgba(255,179,0,0.02) 4px
     );
   pointer-events:none;z-index:0;
 }
@@ -74,7 +74,7 @@ header::after{
   font-size:31px;font-weight:800;
   color:var(--matrix);
   letter-spacing:2px;line-height:1;
-  text-shadow:0 0 20px rgba(191,0,255,0.6);
+  text-shadow:0 0 20px rgba(255,179,0,0.6);
 }
 .logo span{color:var(--matrix-dim);font-size:20px;font-weight:400;}
 .header-sub{font-size:13px;color:var(--text3);margin-top:4px;letter-spacing:1.5px;text-transform:uppercase;}
@@ -95,7 +95,7 @@ header::after{
   box-shadow:0 0 10px var(--matrix-glow);
   font-weight:600;
 }
-.btn-primary:hover{background:var(--matrix-glow);box-shadow:0 0 20px rgba(191,0,255,0.4);}
+.btn-primary:hover{background:var(--matrix-glow);box-shadow:0 0 20px rgba(255,179,0,0.4);}
 
 /* ── STATS ── */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px;}
@@ -112,7 +112,7 @@ header::after{
 .stat-label{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:8px;}
 .stat-value{
   font-family:'Orbitron',monospace;font-size:37px;line-height:1;
-  color:var(--matrix);text-shadow:0 0 15px rgba(191,0,255,0.5);
+  color:var(--matrix);text-shadow:0 0 15px rgba(255,179,0,0.5);
 }
 .stat-value.win-color{color:var(--win);text-shadow:0 0 15px rgba(29,184,99,0.4);}
 .stat-value.loss-color{color:var(--loss);text-shadow:0 0 15px rgba(214,48,49,0.4);}
@@ -182,7 +182,7 @@ header::after{
 .outcome-btn[data-v="BE"]:hover,.outcome-btn[data-v="BE"].active{background:rgba(232,184,75,0.1);border-color:var(--gold);color:var(--gold);}
 .outcome-btn[data-v="No Trade"]:hover,.outcome-btn[data-v="No Trade"].active{background:var(--card2);border-color:var(--border2);color:var(--text2);}
 .setup-btn{flex:1;min-width:70px;padding:9px 6px;border-radius:2px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);transition:all .15s;text-align:center;}
-.setup-btn:hover,.setup-btn.active{background:rgba(191,0,255,0.1);border-color:var(--matrix);color:var(--matrix);box-shadow:0 0 8px rgba(191,0,255,0.2);}
+.setup-btn:hover,.setup-btn.active{background:rgba(255,179,0,0.1);border-color:var(--matrix);color:var(--matrix);box-shadow:0 0 8px rgba(255,179,0,0.2);}
 
 .screenshot-upload{
   border:1px dashed var(--border2);border-radius:2px;
@@ -343,7 +343,7 @@ header::after{
 .empty-state .big{
   font-family:'Orbitron',monospace;font-size:70px;
   color:var(--border2);display:block;margin-bottom:10px;
-  text-shadow:0 0 20px rgba(191,0,255,0.15);
+  text-shadow:0 0 20px rgba(255,179,0,0.15);
 }
 
 /* ── STATUS BAR ── */
@@ -365,7 +365,7 @@ header::after{
 .pin-logo{
   font-family:'Orbitron',monospace;font-size:22px;font-weight:800;
   color:var(--matrix);letter-spacing:2px;
-  text-shadow:0 0 20px rgba(191,0,255,0.6);
+  text-shadow:0 0 20px rgba(255,179,0,0.6);
 }
 .pin-sub{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;}
 .pin-dots{display:flex;gap:14px;margin:8px 0;}
@@ -416,7 +416,7 @@ header::after{
 }
 .scanline-effect{
   position:fixed;inset:0;z-index:998;pointer-events:none;
-  background:linear-gradient(transparent 50%, rgba(191,0,255,0.02) 50%);
+  background:linear-gradient(transparent 50%, rgba(255,179,0,0.02) 50%);
   background-size:100% 4px;
   display:none;
 }
@@ -424,7 +424,7 @@ header::after{
 .scanline-effect::after{
   content:'';position:absolute;
   width:100%;height:3px;
-  background:linear-gradient(transparent,rgba(191,0,255,0.15),transparent);
+  background:linear-gradient(transparent,rgba(255,179,0,0.15),transparent);
   animation:scanline 0.6s linear forwards;
 }
 .news-panel{
@@ -453,7 +453,7 @@ header::after{
 }
 .news-event:last-child{border-bottom:none;}
 .news-event:hover{background:var(--card2);}
-.news-event.today{background:rgba(191,0,255,0.04);}
+.news-event.today{background:rgba(255,179,0,0.04);}
 .news-event.past{opacity:0.4;}
 .news-event.upcoming{border-left:2px solid var(--loss);}
 .news-event.next-up{
@@ -517,8 +517,8 @@ header::after{
 .filter-active-badge{
   display:inline-block;padding:2px 8px;border-radius:2px;
   font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;
-  background:rgba(191,0,255,0.15);color:var(--matrix);
-  border:1px solid rgba(191,0,255,0.4);margin-left:8px;
+  background:rgba(255,179,0,0.15);color:var(--matrix);
+  border:1px solid rgba(255,179,0,0.4);margin-left:8px;
 }
 .status-bar{
   display:flex;align-items:center;gap:10px;
@@ -803,7 +803,7 @@ header::after{
         <div style="background:var(--bg);border:1px solid var(--matrix-dim);border-radius:2px;padding:18px;position:relative;">
           <div style="position:absolute;top:0;left:0;right:0;height:2px;background:var(--matrix);opacity:0.6;"></div>
           <div style="font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:8px;" id="fullLabel">NQ — Full Size</div>
-          <div style="font-family:'Orbitron',monospace;font-size:32px;color:var(--matrix);text-shadow:0 0 15px rgba(191,0,255,0.4);line-height:1;" id="resultMain"></div>
+          <div style="font-family:'Orbitron',monospace;font-size:32px;color:var(--matrix);text-shadow:0 0 15px rgba(255,179,0,0.4);line-height:1;" id="resultMain"></div>
           <div style="font-size:11px;color:var(--text3);margin-top:6px;" id="resultSub"></div>
         </div>
         <div style="background:var(--bg);border:1px solid var(--border2);border-radius:2px;padding:18px;position:relative;opacity:0.85;">
@@ -1670,7 +1670,7 @@ setInterval(loadNews, 60000); // refresh countdown every minute
     ctx.font = fontSize + 'px Share Tech Mono, monospace';
     drops.forEach((y, i) => {
       const bright = Math.random() > 0.95;
-      ctx.fillStyle = bright ? '#ffffff' : (Math.random() > 0.7 ? '#bf00ff' : '#1a0033');
+      ctx.fillStyle = bright ? '#ffffff' : (Math.random() > 0.7 ? '#ffb300' : '#2a1800');
       const char = chars[Math.floor(Math.random() * chars.length)];
       ctx.fillText(char, i * fontSize, y * fontSize);
       if (y * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
