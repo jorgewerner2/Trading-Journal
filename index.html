@@ -982,7 +982,7 @@ function handleScreenshot(e) {
   reader.readAsDataURL(file);
 }
 function clearForm() {
-  obRating=0; outcome=''; screenshotData='';
+  outcome=''; screenshotData='';
   ['f-notes','f-entry','f-stop','f-target','f-time','f-liquidity','f-direction','f-instrument'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-fvg').value='N/A';
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
@@ -1000,7 +1000,6 @@ async function logTrade() {
   const date = document.getElementById('f-date').value;
   if (!date) { alert('Please enter a date.'); return; }
   if (!outcome) { alert('Please select an outcome.'); return; }
-  if (!obRating && outcome!=='No Trade') { alert('Please rate the OB quality.'); return; }
   const stop = parseFloat(document.getElementById('f-stop').value)||0;
   const target = parseFloat(document.getElementById('f-target').value)||0;
   const rr = (stop && target) ? '1:'+(target/stop).toFixed(1) : '—';
