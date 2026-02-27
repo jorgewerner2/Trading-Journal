@@ -1173,6 +1173,11 @@ function getFilteredTrades() {
   });
 }
 
+function getPtVal(instr) {
+  const map = {NQ:20,MNQ:2,ES:50,MES:5,GC:100,MGC:10,CL:1000,MCL:100};
+  return map[String(instr||'').toUpperCase().trim()] || 20;
+}
+
 function applyFilters() {
   const filtered = getFilteredTrades();
   const anyActive = Object.values(activeFilters).some(v=>v!=='');
