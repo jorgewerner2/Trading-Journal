@@ -169,19 +169,6 @@ header::after{
 .form-select option{background:var(--card);color:var(--matrix);}
 .form-textarea{resize:vertical;min-height:80px;font-size:13px;line-height:1.6;}
 
-.ob-rating{display:flex;gap:7px;margin-top:3px;}
-.ob-star{
-  width:32px;height:32px;border-radius:2px;
-  border:1px solid var(--border2);background:var(--bg);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;font-size:15px;transition:all .15s;color:var(--text3);
-}
-.ob-star:hover,.ob-star.active{
-  background:rgba(232,184,75,0.1);
-  border-color:var(--gold);color:var(--gold);
-  box-shadow:0 0 8px rgba(232,184,75,0.2);
-}
-
 .outcome-btns{display:flex;gap:8px;margin-top:3px;flex-wrap:wrap;}
 .outcome-btn{
   flex:1;min-width:60px;padding:9px 6px;border-radius:2px;cursor:pointer;
@@ -703,6 +690,7 @@ header::after{
     <div class="form-grid">
       <div class="form-group"><label class="form-label">// Date</label><input type="date" class="form-input" id="f-date"></div>
       <div class="form-group"><label class="form-label">// Instrument</label><input type="text" class="form-input" id="f-instrument" placeholder="e.g. NQ, ES, CL, GC..."></div>
+      <div class="form-group"><label class="form-label">// Contracts</label><input type="number" class="form-input" id="f-contracts" placeholder="1" min="1" value="1"></div>
       <div class="form-group"><label class="form-label">// Session</label><select class="form-select" id="f-session"><option>New York</option><option>Asia</option><option>London</option></select></div>
       <div class="form-group"><label class="form-label">// Direction</label><select class="form-select" id="f-direction"><option value="">-- Select --</option><option>Long</option><option>Short</option></select></div>
       <div class="form-group"><label class="form-label">// Daily Bias</label><select class="form-select" id="f-bias"><option>Bullish</option><option>Bearish</option><option>Uncertain</option><option>Neutral</option></select></div>
@@ -779,6 +767,7 @@ header::after{
       <button class="instr-btn active" data-instr="NQ" onclick="selectInstr(this)">NQ</button>
       <button class="instr-btn" data-instr="ES"        onclick="selectInstr(this)">ES</button>
       <button class="instr-btn" data-instr="GC"        onclick="selectInstr(this)">GC</button>
+      <button class="instr-btn" data-instr="CL"        onclick="selectInstr(this)">CL</button>
     </div>
 
     <!-- Instrument Info Bar -->
@@ -926,7 +915,7 @@ async function dbFetch(path, opts={}) {
 
 // ── STATE ────────────────────────────────────────────────────────────────────
 let trades = [];
-let obRating = 0, outcome = '', screenshotData = '';
+let obRating = 0, outcome = '', screenshotData = '', editingId = null;
 
 
 
@@ -982,18 +971,18 @@ function handleScreenshot(e) {
   reader.readAsDataURL(file);
 }
 function clearForm() {
-  outcome=''; screenshotData='';
+  outcome=''; screenshotData=''; editingId=null;
   ['f-notes','f-entry','f-stop','f-target','f-time','f-liquidity','f-direction','f-instrument'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-fvg').value='N/A';
   document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
-
-
-  document.querySelectorAll('.ob-star').forEach(el=>el.classList.remove('active'));
+  document.getElementById('f-contracts').value='1';
   document.querySelectorAll('.outcome-btn').forEach(el=>el.classList.remove('active'));
   document.getElementById('screenshotPreview').style.display='none';
   document.getElementById('uploadLabel').textContent='[ Click or drag to upload chart screenshot ]';
   document.getElementById('screenshotInput').value='';
   document.getElementById('saveStatus').textContent='';
+  const saveBtn = document.querySelector('[onclick="logTrade()"]');
+  if (saveBtn) saveBtn.textContent='[ Save Trade ]';
 }
 
 async function logTrade() {
@@ -1003,9 +992,14 @@ async function logTrade() {
   const stop = parseFloat(document.getElementById('f-stop').value)||0;
   const target = parseFloat(document.getElementById('f-target').value)||0;
   const rr = (stop && target) ? '1:'+(target/stop).toFixed(1) : '—';
+  const instrument = document.getElementById('f-instrument').value||'—';
+  const contracts = parseInt(document.getElementById('f-contracts').value)||1;
+  const pnl_pts = outcome==='Win'?target:outcome==='Loss'?-stop:0;
+  const pnl_dollars = pnl_pts * getPtVal(instrument) * contracts;
   const trade = {
     date,
-    instrument: document.getElementById('f-instrument').value||'—',
+    instrument,
+    contracts,
     session: document.getElementById('f-session').value,
     direction: document.getElementById('f-direction').value||'—',
     bias: document.getElementById('f-bias').value,
@@ -1014,7 +1008,8 @@ async function logTrade() {
     entry_price: parseFloat(document.getElementById('f-entry').value)||null,
     stop, target, rr,
     outcome,
-    pnl_pts: outcome==='Win'?target:outcome==='Loss'?-stop:0,
+    pnl_pts,
+    pnl_dollars,
     fvg: document.getElementById('f-fvg').value||'N/A',
     liquidity: document.getElementById('f-liquidity').value||'—',
     notes: document.getElementById('f-notes').value.trim()||'—',
@@ -1024,20 +1019,32 @@ async function logTrade() {
   btn.textContent='[ Saving... ]'; btn.disabled=true;
   document.getElementById('saveStatus').textContent='';
   try {
-    const saved = await dbFetch('Trades', {
-      method:'POST',
-      body: JSON.stringify(trade)
-    });
-    trades.unshift(Array.isArray(saved)?saved[0]:saved);
+    if (editingId) {
+      const saved = await dbFetch('Trades?id=eq.'+encodeURIComponent(editingId), {
+        method:'PATCH',
+        body: JSON.stringify(trade)
+      });
+      const updated = Array.isArray(saved)&&saved.length ? saved[0] : {...trade, id:editingId};
+      const idx = trades.findIndex(t=>String(t.id)===String(editingId));
+      if (idx>-1) trades[idx]=updated;
+      setStatus('Trade updated — ' + trades.length + ' total');
+    } else {
+      const saved = await dbFetch('Trades', {
+        method:'POST',
+        body: JSON.stringify(trade)
+      });
+      trades.unshift(Array.isArray(saved)?saved[0]:saved);
+      setStatus('Trade saved — ' + trades.length + ' total');
+    }
     renderAll();
     clearForm();
     showTab('history');
-    setStatus('Trade saved — ' + trades.length + ' total');
   } catch(e) {
     document.getElementById('saveStatus').textContent = 'Save failed: ' + e.message;
     console.error(e);
   } finally {
-    btn.textContent='[ Save Trade ]'; btn.disabled=false;
+    btn.textContent = editingId ? '[ Update Trade ]' : '[ Save Trade ]';
+    btn.disabled=false;
   }
 }
 
@@ -1075,6 +1082,40 @@ async function deleteTrade(id) {
   const trade = trades.find(t => String(t.id) === String(id));
   const label = trade ? trade.date + ' — ' + trade.session : 'this trade';
   showDeleteModal(id, 'trade', 'Are you sure you want to delete the log for ' + label + '? This cannot be undone.');
+}
+
+function editTrade(id) {
+  const t = trades.find(t=>String(t.id)===String(id));
+  if (!t) return;
+  editingId = id;
+  document.getElementById('f-date').value        = t.date||'';
+  document.getElementById('f-instrument').value  = t.instrument!=='—'?t.instrument:'';
+  document.getElementById('f-contracts').value   = t.contracts||1;
+  document.getElementById('f-session').value     = t.session||'New York';
+  document.getElementById('f-direction').value   = t.direction!=='—'?t.direction:'';
+  document.getElementById('f-bias').value        = t.bias||'Bullish';
+  document.getElementById('f-asia').value        = t.asia||'Tight';
+  document.getElementById('f-time').value        = t.entry_time!=='—'?t.entry_time:'';
+  document.getElementById('f-entry').value       = t.entry_price||'';
+  document.getElementById('f-stop').value        = t.stop||'';
+  document.getElementById('f-target').value      = t.target||'';
+  document.getElementById('f-liquidity').value   = t.liquidity!=='—'?t.liquidity:'';
+  document.getElementById('f-fvg').value         = t.fvg||'N/A';
+  document.getElementById('f-notes').value       = t.notes!=='—'?t.notes:'';
+  outcome = t.outcome||'';
+  document.querySelectorAll('.outcome-btn').forEach(el=>el.classList.toggle('active',el.dataset.v===outcome));
+  screenshotData = t.screenshot||'';
+  if (screenshotData) {
+    document.getElementById('screenshotPreview').src = screenshotData;
+    document.getElementById('screenshotPreview').style.display='block';
+    document.getElementById('uploadLabel').textContent='[ Screenshot loaded — replace if needed ]';
+  } else {
+    document.getElementById('screenshotPreview').style.display='none';
+    document.getElementById('uploadLabel').textContent='[ Click or drag to upload chart screenshot ]';
+  }
+  document.querySelector('[onclick="logTrade()"]').textContent='[ Update Trade ]';
+  showTab('log');
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
 async function doDeleteTrade(id) {
@@ -1204,7 +1245,8 @@ function renderTradesFiltered(list) {
     const pillClass = {Win:'pill-win',Loss:'pill-loss',BE:'pill-be','No Trade':'pill-nt'}[t.outcome]||'pill-nt';
     const cardClass = {Win:'win-card',Loss:'loss-card',BE:'be-card'}[t.outcome]||'';
     const pnlColor = t.pnl_pts>0?'var(--win)':t.pnl_pts<0?'var(--loss)':'var(--text3)';
-    const pnlStr = t.pnl_pts?(t.pnl_pts>0?'+':'')+t.pnl_pts+' pts':'—';
+    const dolStr = t.pnl_dollars!=null ? (t.pnl_dollars>=0?' / +$':' / -$')+Math.abs(t.pnl_dollars).toLocaleString() : '';
+    const pnlStr = t.pnl_pts?(t.pnl_pts>0?'+':'')+t.pnl_pts+' pts'+dolStr:'—';
     return `
     <div class="trade-card ${cardClass} fade-in" id="card-${t.id}">
       <div class="trade-card-header" onclick="toggleCard('${t.id}')">
@@ -1230,7 +1272,10 @@ function renderTradesFiltered(list) {
         </div>
         ${t.notes&&t.notes!=='—'?`<div class="trade-notes-full"><div class="td-label" style="margin-bottom:6px">// Notes & Observations</div>${t.notes}</div>`:''}
         ${t.screenshot?`<div class="trade-screenshot"><div class="trade-screenshot-label">// Chart Screenshot</div><img src="${t.screenshot}" alt="Trade chart"></div>`:''}
-        <div class="trade-actions"><button class="del-btn" onclick="deleteTrade('${t.id}')">[ ✕ Delete ]</button></div>
+        <div class="trade-actions">
+          <button class="del-btn" style="color:var(--blue);border-color:var(--blue);" onclick="editTrade('${t.id}')">[ ✎ Edit ]</button>
+          <button class="del-btn" onclick="deleteTrade('${t.id}')">[ ✕ Delete ]</button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -1291,6 +1336,8 @@ const INSTRUMENTS = {
   MES: { name:'Micro S&P 500',     tickSize:0.25, tickValue:1.25, pointValue:5,    minTick:'0.25 pts', micro:null  },
   GC:  { name:'Gold Futures',      tickSize:0.1,  tickValue:10,   pointValue:100,  minTick:'0.10 pts', micro:'MGC' },
   MGC: { name:'Micro Gold',        tickSize:0.1,  tickValue:1,    pointValue:10,   minTick:'0.10 pts', micro:null  },
+  CL:  { name:'Crude Oil',         tickSize:0.01, tickValue:10,   pointValue:1000, minTick:'0.01 pts', micro:'MCL' },
+  MCL: { name:'Micro Crude Oil',   tickSize:0.01, tickValue:1,    pointValue:100,  minTick:'0.01 pts', micro:null  },
 };
 
 // Pairs: full size → micro
@@ -1298,6 +1345,7 @@ const PAIRS = {
   NQ: { full:'NQ', micro:'MNQ' },
   ES: { full:'ES', micro:'MES' },
   GC: { full:'GC', micro:'MGC' },
+  CL: { full:'CL', micro:'MCL' },
 };
 
 let calcInstr = 'NQ';
