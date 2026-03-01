@@ -481,6 +481,10 @@ header::after{
 .news-date{color:var(--text3);font-family:'Share Tech Mono',monospace;font-size:11px;}
 .news-time{color:var(--text2);font-family:'Share Tech Mono',monospace;}
 .news-name{color:var(--text);font-weight:600;font-size:14px;}
+.news-name-wrap{display:flex;flex-direction:column;gap:2px;}
+.news-data{display:flex;gap:10px;font-size:10px;font-family:'Share Tech Mono',monospace;margin-top:1px;min-height:13px;flex-wrap:wrap;}
+.news-forecast{color:var(--text3);}
+.news-actual{color:var(--gold);font-weight:700;}
 .news-name .avoid-tag{
   font-size:10px;font-weight:400;
   color:var(--loss);margin-left:6px;
@@ -1596,11 +1600,69 @@ function getThisWeekEvents() {
     // Only include if falls within Mon-Sun of current EST week
     const dtEst = new Date(dt.toLocaleString('en-US', {timeZone:'America/New_York'}));
     if (dtEst >= mon && dtEst <= sun) {
-      events.push({ name: e.name, datetime: dt });
+      events.push({ name: e.name, datetime: dt, forecast: e.forecast || null });
     }
   });
 
   return events.sort((a,b) => a.datetime - b.datetime);
+}
+
+// ── FRED ACTUALS ──────────────────────────────────────────────────────────────
+// Free API key: https://fredaccount.stlouisfed.org
+const FRED_KEY = '';
+
+const FRED_MAP = {
+  'Non-Farm Payrolls':        {id:'PAYEMS',         prev:true,  fmt:(v,p)=>`${(v-p)>=0?'+':''}${Math.round(v-p)}K`},
+  'Unemployment Rate':        {id:'UNRATE',          prev:false, fmt:(v)=>`${v}%`},
+  'Core CPI m/m':             {id:'CPILFESL',        prev:true,  fmt:(v,p)=>`${((v-p)/p*100).toFixed(2)}%`},
+  'CPI m/m':                  {id:'CPIAUCSL',        prev:true,  fmt:(v,p)=>`${((v-p)/p*100).toFixed(2)}%`},
+  'Core PPI m/m':             {id:'WPUFD4',          prev:true,  fmt:(v,p)=>`${((v-p)/p*100).toFixed(2)}%`},
+  'PPI m/m':                  {id:'PPIACO',          prev:true,  fmt:(v,p)=>`${((v-p)/p*100).toFixed(2)}%`},
+  'ISM Manufacturing PMI':    {id:'NAPM',            prev:false, fmt:(v)=>`${v}`},
+  'ISM Services PMI':         {id:'NMFCI',           prev:false, fmt:(v)=>`${v}`},
+  'JOLTS Job Openings':       {id:'JTSJOL',          prev:false, fmt:(v)=>`${(v/1000).toFixed(1)}M`},
+  'Unemployment Claims':      {id:'ICSA',            prev:false, fmt:(v)=>`${Math.round(v)}K`},
+  'ADP Non-Farm Employment':  {id:'ADPWNUSNERSA',    prev:false, fmt:(v)=>`${v>=0?'+':''}${Math.round(v)}K`},
+  'Core PCE Price Index m/m': {id:'PCEPILFE',        prev:true,  fmt:(v,p)=>`${((v-p)/p*100).toFixed(2)}%`},
+  'Avg Hourly Earnings m/m':  {id:'CES0500000003',   prev:true,  fmt:(v,p)=>`${((v-p)/p*100).toFixed(2)}%`},
+  'Prelim GDP q/q':           {id:'A191RL1Q225SBEA', prev:false, fmt:(v)=>`${v>=0?'+':''}${v}%`},
+  'Productivity & Costs Q4':  {id:'OPHNFB',          prev:false, fmt:(v)=>`${v>=0?'+':''}${v}%`},
+};
+
+async function fetchFredActuals() {
+  if (!FRED_KEY) return;
+  const events = getThisWeekEvents();
+  const now = new Date();
+  for (const e of events) {
+    if (e.datetime >= now) continue;
+    const map = FRED_MAP[e.name];
+    if (!map) continue;
+    try {
+      const url = `https://api.stlouisfed.org/fred/series/observations?series_id=${map.id}&api_key=${FRED_KEY}&file_type=json&sort_order=desc&limit=${map.prev?2:1}`;
+      const res = await fetch(url);
+      const json = await res.json();
+      const obs = json.observations;
+      if (!obs || !obs.length) continue;
+      const v = parseFloat(obs[0].value);
+      if (isNaN(v)) continue;
+      let actual;
+      if (map.prev) {
+        if (obs.length < 2) continue;
+        const p = parseFloat(obs[1].value);
+        if (isNaN(p)) continue;
+        actual = map.fmt(v, p);
+      } else {
+        actual = map.fmt(v);
+      }
+      const key = e.name.replace(/[^a-zA-Z0-9]/g,'_');
+      const el = document.getElementById('fred-'+key);
+      if (!el) continue;
+      const fEl = el.querySelector('.news-forecast');
+      el.innerHTML = (fEl ? fEl.outerHTML : '') + `<span class="news-actual">A: ${actual}</span>`;
+    } catch(err) {
+      console.warn('FRED:', e.name, err.message);
+    }
+  }
 }
 
 function loadNews() {
@@ -1646,15 +1708,23 @@ function loadNews() {
       else                    { countdown = `in ${Math.floor(diffMin/1440)}d`;   }
 
       const cls = isNext ? 'next-up' : isPast ? 'past' : 'upcoming';
+      const fredKey = e.name.replace(/[^a-zA-Z0-9]/g,'_');
+      const forecastHtml = e.forecast
+        ? `<span class="news-forecast">F: ${e.forecast}</span>`
+        : '';
       html += `<div class="news-event ${cls}">
         <div class="news-time">${timeStr}</div>
         <div class="news-countdown ${countClass}">${countdown}</div>
-        <div class="news-name">${e.name}</div>
+        <div class="news-name-wrap">
+          <span class="news-name">${e.name}</span>
+          <div class="news-data" id="fred-${fredKey}">${forecastHtml}</div>
+        </div>
       </div>`;
     });
   });
 
   el.innerHTML = html;
+  fetchFredActuals();
 }
 
 function updateNewsClock() {
